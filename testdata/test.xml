@@ -1,0 +1,22 @@
+<registry>
+	<types>
+		<type name="khrplatform">#include &lt;KHR/khrplatform.h></type>
+		<type>typedef unsigned int <name>GLenum</name>;</type>
+		<type>typedef unsigned int <name>GLbitfield</name>;</type>
+	</types>
+	<enums group="ClientAttribMask" namespace="GL" type="bitmask">
+		<enum name="GL_CLIENT_PIXEL_STORE_BIT" group="ClientAttribMask" value="0x00000001"/>
+		<enum name="GL_CLIENT_VERTEX_ARRAY_BIT" group="ClientAttribMask" value="0x00000002"/>
+		<enum name="GL_CLIENT_ALL_ATTRIB_BITS" group="ClientAttribMask" value="0xFFFFFFFF"/>
+	</enums>
+	<commands namespace="GL">
+		<command>
+			<proto>void <name>glClientAttribDefaultEXT</name>
+			</proto>
+			<param group="ClientAttribMask">
+				<ptype>GLbitfield</ptype>
+				<name>mask</name>
+			</param>
+		</command>
+	</commands>
+</registry>
