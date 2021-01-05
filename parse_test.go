@@ -22,9 +22,9 @@ func TestParse(t *testing.T) {
 			"GLbitfield": Uint32,
 		},
 		Enums: []Enum{
-			{"GL_CLIENT_PIXEL_STORE_BIT", "ClientAttribMask", 1},
-			{"GL_CLIENT_VERTEX_ARRAY_BIT", "ClientAttribMask", 2},
-			{"GL_CLIENT_ALL_ATTRIB_BITS", "ClientAttribMask", 0xFFFFFFFF},
+			{"GL_CLIENT_PIXEL_STORE_BIT", "ClientAttribMask", "0x00000001"},
+			{"GL_CLIENT_VERTEX_ARRAY_BIT", "ClientAttribMask", "0x00000002"},
+			{"GL_CLIENT_ALL_ATTRIB_BITS", "ClientAttribMask", "0xFFFFFFFF"},
 		},
 		Commands: []Command{
 			{"glClientAttribDefaultEXT", []Param{

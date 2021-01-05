@@ -40,7 +40,7 @@ const (
 type Enum struct {
 	Name  string
 	Type  string
-	Value int
+	Value string
 }
 
 type Command struct {

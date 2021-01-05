@@ -4,7 +4,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
-	"strconv"
 	"strings"
 )
 
@@ -66,6 +65,12 @@ func Parse(r io.Reader) (*Registry, error) {
 		case "":
 			name = xty.Name.S
 			switch name {
+			case "GLvoid", "GLeglClientBufferEXT", "GLeglImageOES", "struct _cl_context", "struct _cl_event", "GLVULKANPROCNV":
+				continue
+			case "GLhandleARB":
+				ty = GLhandleARB
+			case "GLsync":
+				ty = GLsync
 			case "GLDEBUGPROC", "GLDEBUGPROCARB", "GLDEBUGPROCKHR", "GLDEBUGPROCAMD":
 				ty = GLdebugProc
 			default:
@@ -79,11 +84,7 @@ func Parse(r io.Reader) (*Registry, error) {
 	}
 
 	for i, xenum := range xreg.Enums {
-		v, err := strconv.ParseInt(xenum.Value, 0, 0)
-		if err != nil {
-			return nil, fmt.Errorf("Cannot parse value for enum %q: %w", xenum.Name, err)
-		}
-		reg.Enums[i] = Enum{xenum.Name, xenum.Type, int(v)}
+		reg.Enums[i] = Enum{xenum.Name, xenum.Type, xenum.Value}
 	}
 
 	for i, xcmd := range xreg.Commands {
@@ -116,14 +117,14 @@ func parseTypeDef(tdef string) Type {
 		return Int32
 	case "khronos_int64_t":
 		return Int64
-	case "khronos_intptr_t":
+	case "khronos_intptr_t", "GLintptr":
 		return Intptr
-	case "khronos_intsize_t":
+	case "khronos_ssize_t":
 		return Intsize
 
-	case "khronos_uint8_t", "unsigned char":
+	case "khronos_uint8_t", "char", "unsigned char":
 		return Uint8
-	case "khronos_uint16_t":
+	case "khronos_uint16_t", "unsigned short":
 		return Uint16
 	case "khronos_uint32_t", "unsigned int":
 		return Uint32
@@ -131,7 +132,7 @@ func parseTypeDef(tdef string) Type {
 		return Uint64
 	case "khronos_uintptr_t":
 		return Uintptr
-	case "khronos_uintsize_t":
+	case "khronos_size_t":
 		return Uintsize
 
 	case "khronos_float_t":
