@@ -1,3 +1,3 @@
-module github.com/vktec/gleg
+module github.com/vktec/gll
 
 go 1.15

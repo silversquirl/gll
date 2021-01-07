@@ -10,7 +10,7 @@ import (
 
 func Generate(reg *Registry) (src []byte, err error) {
 	buf := bytes.Buffer{}
-	buf.WriteString("package gleg\n\n")
+	buf.WriteString("package gll\n\n")
 
 	buf.WriteString("/*\n#cgo LDFLAGS: -lGL\n")
 	genC(&buf, reg)
@@ -69,7 +69,7 @@ commands:
 		if paramS != "" {
 			comma = ", "
 		}
-		fmt.Fprintf(buf, "%sglegCall_%s(void *_func%s%s) {\n", retTy, cmd.Name, comma, paramS)
+		fmt.Fprintf(buf, "%sgllCall_%s(void *_func%s%s) {\n", retTy, cmd.Name, comma, paramS)
 		buf.WriteByte('\t')
 		if cmd.Return != "void" {
 			buf.WriteString("return ")
@@ -122,7 +122,7 @@ commands:
 			cast = true
 			fmt.Fprintf(buf, "return (%s)(", retTy)
 		}
-		fmt.Fprintf(buf, "C.glegCall_%s(gl.%s, %s)", cmd.Name, cmd.Name, argS)
+		fmt.Fprintf(buf, "C.gllCall_%s(gl.%s, %s)", cmd.Name, cmd.Name, argS)
 		if cast {
 			buf.WriteByte(')')
 		}

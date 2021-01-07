@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/vktec/gleg/gen"
+	"github.com/vktec/gll/gen"
 )
 
 const URL = "https://www.khronos.org/registry/OpenGL/xml/gl.xml"
@@ -48,7 +48,7 @@ func main() {
 		log.Fatal(err)
 	}
 	defer f.Close()
-	if _, err := fmt.Fprintln(f, "//go:generate go run ./cmd/gleg/"); err != nil {
+	if _, err := fmt.Fprintln(f, "//go:generate go run ./cmd/gllgen/"); err != nil {
 		log.Fatal(err)
 	}
 	if _, err := f.Write(src); err != nil {
