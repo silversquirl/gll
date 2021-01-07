@@ -39,6 +39,14 @@ func Strs(strs []string) (strp **uint8, lenp *int32, free func()) {
 	}
 }
 
+func Str(str string) *uint8 {
+	if str[len(str)-1] != 0 {
+		panic("Argument to Str is not NUL-terminated")
+	}
+	hdr := *(*reflect.StringHeader)(unsafe.Pointer(&str))
+	return (*uint8)(unsafe.Pointer(hdr.Data))
+}
+
 func Ptr(value interface{}) unsafe.Pointer {
 	v := reflect.ValueOf(value)
 	switch v.Type().Kind() {
