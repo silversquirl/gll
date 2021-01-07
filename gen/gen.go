@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"go/format"
-	"log"
 	"strings"
 )
 
@@ -23,12 +22,7 @@ func Generate(reg *Registry) (src []byte, err error) {
 	genTypes(&buf)
 	genEnums(&buf, reg)
 
-	_, err = format.Source(buf.Bytes())
-	if err != nil {
-		log.Print(err)
-	}
-	// return format.Source(buf.Bytes())
-	return buf.Bytes(), nil
+	return format.Source(buf.Bytes())
 }
 
 func genC(buf *bytes.Buffer, reg *Registry) {
@@ -74,7 +68,7 @@ commands:
 		if cmd.Return != "void" {
 			buf.WriteString("return ")
 		}
-		fmt.Fprintf(buf, "((%s(*)(%s)) _func)(%s);\n", retTy, paramS, argS)
+		fmt.Fprintf(buf, "((%s(*)(%s))_func)(%s);\n", retTy, paramS, argS)
 		buf.WriteString("}\n")
 	}
 }
@@ -116,7 +110,7 @@ commands:
 
 		names = append(names, cmd.Name)
 		cmdSigs[cmd.Name] = fmt.Sprintf("(%s)%s", paramS, retTy)
-		fmt.Fprintf(buf, "func (gl *lib) %s(%s)%s {", strings.TrimPrefix(cmd.Name, "gl"), paramS, retTy)
+		fmt.Fprintf(buf, "func (gl *lib) %s(%s)%s {\n", strings.TrimPrefix(cmd.Name, "gl"), paramS, retTy)
 		cast := false
 		if retTy != "" {
 			cast = true
@@ -126,7 +120,7 @@ commands:
 		if cast {
 			buf.WriteByte(')')
 		}
-		buf.WriteString("}\n")
+		buf.WriteString("\n}\n")
 	}
 
 	buf.WriteString("type lib struct {\n")
