@@ -12,7 +12,7 @@ func mkslice(data uintptr, cap_ int) unsafe.Pointer {
 	return unsafe.Pointer(&reflect.SliceHeader{Data: data, Len: cap_, Cap: cap_})
 }
 
-func Strs(strs []string) (strp **uint8, lenp *int32, free func()) {
+func Strs(strs ...string) (strp **uint8, lenp *int32, free func()) {
 	var strpLen, lenpLen, strbLen uintptr
 	for _, s := range strs {
 		strpLen += unsafe.Sizeof((*uint8)(nil))
