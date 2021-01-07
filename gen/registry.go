@@ -1,15 +1,17 @@
-package gleg
+package gen
 
 type Registry struct {
 	Types    map[string]Type
 	Enums    []Enum
 	Commands []Command
+	Features []Feature
 }
 
 type Type int
 
 const (
 	InvalidType Type = iota
+	UnsupportedType
 
 	Int8
 	Int16
@@ -28,13 +30,13 @@ const (
 	Float32
 	Float64
 
+	Bool
 	Pointer
 
 	GLhandleARB
 	GLsync
-	GLdebugProc
 
-	// TODO: _cl_context, _cl_event, GLVULKANPROCNV
+	// TODO: GLDEBUGPROC, _cl_context, _cl_event, GLVULKANPROCNV
 )
 
 type Enum struct {
@@ -51,4 +53,9 @@ type Command struct {
 type Param struct {
 	Name string
 	Type string
+}
+
+type Feature struct {
+	Version  int
+	Commands []string
 }

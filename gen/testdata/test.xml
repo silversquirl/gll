@@ -19,4 +19,10 @@
 			</param>
 		</command>
 	</commands>
+	<feature api="gl" name="GL_VERSION_4_3" number="4.3">
+		<require comment="Reuse commands from ARB_compute_shader">
+			<command name="glDispatchCompute"/>
+			<command name="glDispatchComputeIndirect"/>
+		</require>
+	</feature>
 </registry>

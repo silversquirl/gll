@@ -1,6 +1,7 @@
-package gleg
+package gen
 
 import (
+	"bytes"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -11,6 +12,7 @@ type xRegistry struct {
 	Types    []xType    `xml:"types>type"`
 	Enums    []xEnum    `xml:"enums>enum"`
 	Commands []xCommand `xml:"commands>command"`
+	Features []xFeature `xml:"feature"`
 }
 type xType struct {
 	Tdef  string  `xml:",chardata"`
@@ -18,25 +20,58 @@ type xType struct {
 	NameA string  `xml:"name,attr"`
 }
 type xEnum struct {
+	API   string `xml:"api,attr"`
 	Name  string `xml:"name,attr"`
 	Type  string `xml:"group,attr"`
 	Value string `xml:"value,attr"`
 }
 type xCommand struct {
-	Proto  xProto   `xml:"proto"`
+	Proto  xParam   `xml:"proto"`
 	Params []xParam `xml:"param"`
-}
-type xProto struct {
-	Ret  string  `xml:",chardata"`
-	Name xString `xml:"name"`
 }
 type xParam struct {
 	Name  xString `xml:"name"`
 	Group string  `xml:"group,attr"`
-	Type  xString `xml:"ptype"`
+	Raw   []byte  `xml:",innerxml"`
+}
+type xFeature struct {
+	API      string     `xml:"api,attr"`
+	Number   float32    `xml:"number,attr"`
+	Commands []xFeatCmd `xml:"require>command"`
+}
+type xFeatCmd struct {
+	Name string `xml:"name,attr"`
 }
 type xString struct {
 	S string `xml:",chardata"`
+}
+
+func (par xParam) Type() (string, error) {
+	r := bytes.NewReader(par.Raw)
+	b := strings.Builder{}
+	dec := xml.NewDecoder(r)
+loop:
+	for {
+		tok, err := dec.Token()
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return "", err
+		}
+		switch tok := tok.(type) {
+		case xml.StartElement:
+			if tok.Name.Local == "name" {
+				break loop
+			}
+		case xml.CharData:
+			b.Write([]byte(tok))
+		}
+	}
+
+	ty := b.String()
+	ty = strings.ReplaceAll(ty, "const", "")
+	ty = strings.Trim(ty, " \t\n")
+	return ty, nil
 }
 
 func Parse(r io.Reader) (*Registry, error) {
@@ -50,8 +85,9 @@ func Parse(r io.Reader) (*Registry, error) {
 	// Convert registry
 	reg := &Registry{
 		Types:    make(map[string]Type, len(xreg.Types)),
-		Enums:    make([]Enum, len(xreg.Enums)),
+		Enums:    make([]Enum, 0, len(xreg.Enums)),
 		Commands: make([]Command, len(xreg.Commands)),
+		Features: make([]Feature, 0, 2*len(xreg.Features)),
 	}
 
 	for _, xty := range xreg.Types {
@@ -59,20 +95,24 @@ func Parse(r io.Reader) (*Registry, error) {
 		ty := InvalidType
 		switch name {
 		case "khrplatform":
-			continue // Skip khrplatform
+			continue // Ignore khrplatform
 		case "GLhandleARB":
 			ty = GLhandleARB
 		case "":
 			name = xty.Name.S
 			switch name {
-			case "GLvoid", "GLeglClientBufferEXT", "GLeglImageOES", "struct _cl_context", "struct _cl_event", "GLVULKANPROCNV":
-				continue
+			case "GLvoid":
+				continue // Ignore void, it's unused
+			case "GLeglClientBufferEXT", "GLeglImageOES", "struct _cl_context", "struct _cl_event", "GLVULKANPROCNV":
+				ty = UnsupportedType
+			case "GLDEBUGPROC", "GLDEBUGPROCARB", "GLDEBUGPROCKHR", "GLDEBUGPROCAMD":
+				ty = UnsupportedType
+			case "GLboolean":
+				ty = Bool
 			case "GLhandleARB":
 				ty = GLhandleARB
 			case "GLsync":
 				ty = GLsync
-			case "GLDEBUGPROC", "GLDEBUGPROCARB", "GLDEBUGPROCKHR", "GLDEBUGPROCAMD":
-				ty = GLdebugProc
 			default:
 				ty = parseTypeDef(xty.Tdef)
 			}
@@ -83,20 +123,45 @@ func Parse(r io.Reader) (*Registry, error) {
 		reg.Types[name] = ty
 	}
 
-	for i, xenum := range xreg.Enums {
-		reg.Enums[i] = Enum{xenum.Name, xenum.Type, xenum.Value}
+	for _, xenum := range xreg.Enums {
+		if xenum.API == "" || xenum.API == "gl" {
+			reg.Enums = append(reg.Enums, Enum{xenum.Name, xenum.Type, xenum.Value})
+		}
 	}
 
 	for i, xcmd := range xreg.Commands {
+		ty, err := xcmd.Proto.Type()
+		if err != nil {
+			return nil, err
+		}
 		cmd := Command{
 			xcmd.Proto.Name.S,
 			make([]Param, len(xcmd.Params)),
-			strings.Trim(xcmd.Proto.Ret, " \t\n"),
+			ty,
 		}
 		for j, xpar := range xcmd.Params {
-			cmd.Params[j] = Param{xpar.Name.S, xpar.Type.S}
+			ty, err := xpar.Type()
+			if err != nil {
+				return nil, err
+			}
+			cmd.Params[j] = Param{xpar.Name.S, ty}
 		}
 		reg.Commands[i] = cmd
+	}
+
+	for _, xfeat := range xreg.Features {
+		if xfeat.API != "gl" {
+			continue
+		}
+
+		feat := Feature{
+			int(xfeat.Number * 100),
+			make([]string, len(xfeat.Commands)),
+		}
+		for i, cmd := range xfeat.Commands {
+			feat.Commands[i] = cmd.Name
+		}
+		reg.Features = append(reg.Features, feat)
 	}
 
 	return reg, nil

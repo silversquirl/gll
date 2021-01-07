@@ -1,4 +1,4 @@
-package gleg
+package gen
 
 import (
 	"os"
@@ -31,6 +31,9 @@ func TestParse(t *testing.T) {
 				{"mask", "GLbitfield"},
 			}, "void"},
 		},
+		Features: []Feature{
+			{430, []string{"glDispatchCompute", "glDispatchComputeIndirect"}},
+		},
 	}
 
 	if !reflect.DeepEqual(expected.Types, reg.Types) {
@@ -41,5 +44,8 @@ func TestParse(t *testing.T) {
 	}
 	if !reflect.DeepEqual(expected.Commands, reg.Commands) {
 		t.Errorf("Commands do not match:\n\t%q\n\t%q", expected.Commands, reg.Commands)
+	}
+	if !reflect.DeepEqual(expected.Features, reg.Features) {
+		t.Errorf("Features do not match:\n\t%q\n\t%q", expected.Features, reg.Features)
 	}
 }
