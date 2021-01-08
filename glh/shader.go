@@ -27,7 +27,7 @@ func NewShader(gl gll.GL200, shaderType uint32, shaderSources ...string) (shad u
 	return shad, nil
 }
 
-func LinkProgram(gl gll.GL200, shaders ...uint32) (prog uint32, err error) {
+func NewProgram(gl gll.GL200, shaders ...uint32) (prog uint32, err error) {
 	prog = gl.CreateProgram()
 	for _, shad := range shaders {
 		gl.AttachShader(prog, shad)
