@@ -106,7 +106,7 @@ func Parse(r io.Reader) (*Registry, error) {
 			case "GLeglClientBufferEXT", "GLeglImageOES", "struct _cl_context", "struct _cl_event", "GLVULKANPROCNV":
 				ty = UnsupportedType
 			case "GLDEBUGPROC", "GLDEBUGPROCARB", "GLDEBUGPROCKHR", "GLDEBUGPROCAMD":
-				ty = UnsupportedType
+				ty = GLDEBUGPROC
 			case "GLboolean":
 				ty = Bool
 			case "GLhandleARB":

@@ -35,8 +35,9 @@ const (
 
 	GLhandleARB
 	GLsync
+	GLDEBUGPROC
 
-	// TODO: GLDEBUGPROC, _cl_context, _cl_event, GLVULKANPROCNV
+	// TODO: _cl_context, _cl_event, GLVULKANPROCNV
 )
 
 type Enum struct {

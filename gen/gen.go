@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"go/format"
+	"sort"
 	"strings"
 )
 
@@ -41,6 +42,11 @@ typedef struct __GLsync *GLsync;
 
 commands:
 	for _, cmd := range reg.Commands {
+		if strings.HasPrefix(cmd.Name, "glDebugMessageCallback") {
+			// We don't generate any wrapper code for this function, it's manually defined in debug.c
+			continue
+		}
+
 		params := make([]string, len(cmd.Params))
 		args := make([]string, len(cmd.Params))
 		for i, par := range cmd.Params {
@@ -78,6 +84,13 @@ func genLib(buf *bytes.Buffer, reg *Registry) (cmdSigs map[string]string) {
 	names := make([]string, 0, len(reg.Commands))
 commands:
 	for _, cmd := range reg.Commands {
+		if strings.HasPrefix(cmd.Name, "glDebugMessageCallback") {
+			// We don't generate any wrapper code for this function, it's manually defined in debug.go
+			names = append(names, cmd.Name)
+			cmdSigs[cmd.Name] = "(callback DebugProc)"
+			continue
+		}
+
 		params := make([]string, len(cmd.Params))
 		args := make([]string, len(cmd.Params))
 		for i, par := range cmd.Params {
@@ -124,6 +137,7 @@ commands:
 	}
 
 	buf.WriteString("type lib struct {\n")
+	buf.WriteString("debugState\n")
 	for _, name := range names {
 		buf.WriteString(name)
 		buf.WriteString(" unsafe.Pointer\n")
@@ -154,16 +168,22 @@ func genVersions(buf *bytes.Buffer, cmdSigs map[string]string, reg *Registry) {
 		}
 	}
 }
-func genVersion(buf *bytes.Buffer, cmdSigs map[string]string, v int, cmds map[string]struct{}) {
+func genVersion(buf *bytes.Buffer, cmdSigs map[string]string, v int, cmdMap map[string]struct{}) {
+	cmds := make([]string, 0, len(cmdMap))
+	for cmd := range cmdMap {
+		cmds = append(cmds, cmd)
+	}
+	sort.Strings(cmds)
+
 	fmt.Fprintf(buf, "type GL%d interface {\n", v)
-	for cmd := range cmds {
+	for _, cmd := range cmds {
 		buf.WriteString(strings.TrimPrefix(cmd, "gl"))
 		buf.WriteString(cmdSigs[cmd])
 		buf.WriteByte('\n')
 	}
 	fmt.Fprintf(buf, "}\nfunc New%d(getProcAddr func(name string) unsafe.Pointer) GL%[1]d {\n", v)
 	buf.WriteString("return &lib{\n")
-	for cmd := range cmds {
+	for _, cmd := range cmds {
 		fmt.Fprintf(buf, "%s: getProcAddr(%[1]q),\n", cmd)
 	}
 	buf.WriteString("}\n}\n")
@@ -265,6 +285,8 @@ func cType(types map[string]Type, name string, cgo bool) (t string, ok bool) {
 		t = "GLhandleARB"
 	case GLsync:
 		t = "GLsync"
+	case GLDEBUGPROC:
+		panic("GLDEBUGPROC has no C representation")
 
 	default:
 		panic(fmt.Sprintf("Unknown type for %q: %d", name, ty))
@@ -336,6 +358,8 @@ func goType(types map[string]Type, name string) (t string, ok bool) {
 		t = "GLhandleARB"
 	case GLsync:
 		t = "GLsync"
+	case GLDEBUGPROC:
+		t = "DebugProc"
 
 	default:
 		panic(fmt.Sprintf("Unknown type for %q: %d", name, ty))
