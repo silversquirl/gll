@@ -10,14 +10,12 @@ import (
 	"sync"
 )
 
-type DebugProc func(source, type_, id, severity uint32, message string)
-
 type debugState struct {
-	debugProc DebugProc
+	debugProc func(source, type_, id, severity uint32, message string)
 	debugIdx  int
 }
 
-func (gl *lib) DebugMessageCallback(callback DebugProc) {
+func (gl *lib) DebugMessageCallback(callback func(source, type_, id, severity uint32, message string)) {
 	if gl.debugProc == nil {
 		gl.debugIdx = debugAdd(gl)
 		runtime.SetFinalizer(gl, func(gl *lib) {

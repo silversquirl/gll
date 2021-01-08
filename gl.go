@@ -40215,7 +40215,7 @@ type GL430 interface {
 	CreateShader(type_ uint32) uint32
 	CreateShaderProgramv(type_ uint32, count int32, strings **uint8) uint32
 	CullFace(mode uint32)
-	DebugMessageCallback(callback DebugProc)
+	DebugMessageCallback(callback func(source, type_, id, severity uint32, message string))
 	DebugMessageControl(source uint32, type_ uint32, severity uint32, count int32, ids *uint32, enabled bool)
 	DebugMessageInsert(source uint32, type_ uint32, id uint32, severity uint32, length int32, buf *uint8)
 	DeleteBuffers(n int32, buffers *uint32)
@@ -42058,7 +42058,7 @@ type GL440 interface {
 	CreateShader(type_ uint32) uint32
 	CreateShaderProgramv(type_ uint32, count int32, strings **uint8) uint32
 	CullFace(mode uint32)
-	DebugMessageCallback(callback DebugProc)
+	DebugMessageCallback(callback func(source, type_, id, severity uint32, message string))
 	DebugMessageControl(source uint32, type_ uint32, severity uint32, count int32, ids *uint32, enabled bool)
 	DebugMessageInsert(source uint32, type_ uint32, id uint32, severity uint32, length int32, buf *uint8)
 	DeleteBuffers(n int32, buffers *uint32)
@@ -43936,7 +43936,7 @@ type GL450 interface {
 	CreateTransformFeedbacks(n int32, ids *uint32)
 	CreateVertexArrays(n int32, arrays *uint32)
 	CullFace(mode uint32)
-	DebugMessageCallback(callback DebugProc)
+	DebugMessageCallback(callback func(source, type_, id, severity uint32, message string))
 	DebugMessageControl(source uint32, type_ uint32, severity uint32, count int32, ids *uint32, enabled bool)
 	DebugMessageInsert(source uint32, type_ uint32, id uint32, severity uint32, length int32, buf *uint8)
 	DeleteBuffers(n int32, buffers *uint32)
@@ -46032,7 +46032,7 @@ type GL460 interface {
 	CreateTransformFeedbacks(n int32, ids *uint32)
 	CreateVertexArrays(n int32, arrays *uint32)
 	CullFace(mode uint32)
-	DebugMessageCallback(callback DebugProc)
+	DebugMessageCallback(callback func(source, type_, id, severity uint32, message string))
 	DebugMessageControl(source uint32, type_ uint32, severity uint32, count int32, ids *uint32, enabled bool)
 	DebugMessageInsert(source uint32, type_ uint32, id uint32, severity uint32, length int32, buf *uint8)
 	DeleteBuffers(n int32, buffers *uint32)

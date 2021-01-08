@@ -87,7 +87,7 @@ commands:
 		if strings.HasPrefix(cmd.Name, "glDebugMessageCallback") {
 			// We don't generate any wrapper code for this function, it's manually defined in debug.go
 			names = append(names, cmd.Name)
-			cmdSigs[cmd.Name] = "(callback DebugProc)"
+			cmdSigs[cmd.Name] = "(callback func(source, type_, id, severity uint32, message string))"
 			continue
 		}
 
@@ -359,7 +359,7 @@ func goType(types map[string]Type, name string) (t string, ok bool) {
 	case GLsync:
 		t = "GLsync"
 	case GLDEBUGPROC:
-		t = "DebugProc"
+		t = "func(source, type_, id, severity uint32, message string)"
 
 	default:
 		panic(fmt.Sprintf("Unknown type for %q: %d", name, ty))
