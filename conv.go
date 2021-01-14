@@ -47,6 +47,10 @@ func Str(str string) *uint8 {
 	return (*uint8)(unsafe.Pointer(hdr.Data))
 }
 
+func GoStr(str *uint8) string {
+	return C.GoString((*C.char)(unsafe.Pointer(str)))
+}
+
 func Ptr(value interface{}) unsafe.Pointer {
 	v := reflect.ValueOf(value)
 	switch v.Type().Kind() {
