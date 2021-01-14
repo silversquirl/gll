@@ -1,10 +1,11 @@
 package gen
 
 type Registry struct {
-	Types    map[string]Type
-	Enums    []Enum
-	Commands []Command
-	Features []Feature
+	Types      map[string]Type
+	Enums      []Enum
+	Commands   []Command
+	Features   []Feature
+	Extensions []Extension
 }
 
 type Type int
@@ -58,5 +59,9 @@ type Param struct {
 
 type Feature struct {
 	Version  int
+	Commands []string
+}
+
+type Extension struct {
 	Commands []string
 }

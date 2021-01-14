@@ -34,6 +34,9 @@ func TestParse(t *testing.T) {
 		Features: []Feature{
 			{430, []string{"glDispatchCompute", "glDispatchComputeIndirect"}},
 		},
+		Extensions: []Extension{
+			{[]string{"glClearTexImage", "glClearTexSubImage"}},
+		},
 	}
 
 	if !reflect.DeepEqual(expected.Types, reg.Types) {
@@ -47,5 +50,8 @@ func TestParse(t *testing.T) {
 	}
 	if !reflect.DeepEqual(expected.Features, reg.Features) {
 		t.Errorf("Features do not match:\n\t%q\n\t%q", expected.Features, reg.Features)
+	}
+	if !reflect.DeepEqual(expected.Extensions, reg.Extensions) {
+		t.Errorf("Extensions do not match:\n\t%q\n\t%q", expected.Extensions, reg.Extensions)
 	}
 }

@@ -20,6 +20,7 @@ func Generate(reg *Registry) (src []byte, err error) {
 	buf.WriteString("import \"unsafe\"\n\n")
 	cmdSigs := genLib(&buf, reg)
 	genVersions(&buf, cmdSigs, reg)
+	genExtensions(&buf, cmdSigs, reg)
 	genTypes(&buf)
 	genEnums(&buf, reg)
 
@@ -175,7 +176,7 @@ func genVersion(buf *bytes.Buffer, cmdSigs map[string]string, v int, cmdMap map[
 	}
 	sort.Strings(cmds)
 
-	fmt.Fprintf(buf, "type GL%d interface {\n", v)
+	fmt.Fprintf(buf, "type GL%d interface {\nExtensions\n", v)
 	for _, cmd := range cmds {
 		buf.WriteString(strings.TrimPrefix(cmd, "gl"))
 		buf.WriteString(cmdSigs[cmd])
@@ -187,6 +188,29 @@ func genVersion(buf *bytes.Buffer, cmdSigs map[string]string, v int, cmdMap map[
 		fmt.Fprintf(buf, "%s: getProcAddr(%[1]q),\n", cmd)
 	}
 	buf.WriteString("}\n}\n")
+}
+
+func genExtensions(buf *bytes.Buffer, cmdSigs map[string]string, reg *Registry) {
+	cmds := make(map[string]struct{})
+	buf.WriteString("type Extensions interface {\n")
+	for _, ext := range reg.Extensions {
+		for _, cmd := range ext.Commands {
+			if strings.HasPrefix(cmd, "glDebugMessageCallback") { // TODO: support debug extensions
+				continue
+			}
+
+			if _, ok := cmds[cmd]; ok {
+				continue
+			}
+			cmds[cmd] = struct{}{}
+			if sig, ok := cmdSigs[cmd]; ok {
+				buf.WriteString(strings.TrimPrefix(cmd, "gl"))
+				buf.WriteString(sig)
+				buf.WriteByte('\n')
+			}
+		}
+	}
+	buf.WriteString("}\n")
 }
 
 func genTypes(buf *bytes.Buffer) {

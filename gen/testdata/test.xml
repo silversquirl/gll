@@ -25,4 +25,13 @@
 			<command name="glDispatchComputeIndirect"/>
 		</require>
 	</feature>
+	<extensions>
+		<extension name="GL_ARB_clear_texture" supported="gl|glcore">
+			<require>
+				<enum name="GL_CLEAR_TEXTURE"/>
+				<command name="glClearTexImage"/>
+				<command name="glClearTexSubImage"/>
+			</require>
+		</extension>
+	</extensions>
 </registry>

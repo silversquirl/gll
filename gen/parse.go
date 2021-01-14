@@ -9,10 +9,11 @@ import (
 )
 
 type xRegistry struct {
-	Types    []xType    `xml:"types>type"`
-	Enums    []xEnum    `xml:"enums>enum"`
-	Commands []xCommand `xml:"commands>command"`
-	Features []xFeature `xml:"feature"`
+	Types      []xType      `xml:"types>type"`
+	Enums      []xEnum      `xml:"enums>enum"`
+	Commands   []xCommand   `xml:"commands>command"`
+	Features   []xFeature   `xml:"feature"`
+	Extensions []xExtension `xml:"extensions>extension"`
 }
 type xType struct {
 	Tdef  string  `xml:",chardata"`
@@ -41,6 +42,11 @@ type xFeature struct {
 }
 type xFeatCmd struct {
 	Name string `xml:"name,attr"`
+}
+type xExtension struct {
+	Name      string     `xml:"name,attr"`
+	Supported string     `xml:"supported,attr"`
+	Commands  []xFeatCmd `xml:"require>command"`
 }
 type xString struct {
 	S string `xml:",chardata"`
@@ -84,10 +90,11 @@ func Parse(r io.Reader) (*Registry, error) {
 
 	// Convert registry
 	reg := &Registry{
-		Types:    make(map[string]Type, len(xreg.Types)),
-		Enums:    make([]Enum, 0, len(xreg.Enums)),
-		Commands: make([]Command, len(xreg.Commands)),
-		Features: make([]Feature, 0, 2*len(xreg.Features)),
+		Types:      make(map[string]Type, len(xreg.Types)),
+		Enums:      make([]Enum, 0, len(xreg.Enums)),
+		Commands:   make([]Command, len(xreg.Commands)),
+		Features:   make([]Feature, 0, len(xreg.Features)),
+		Extensions: make([]Extension, 0, len(xreg.Extensions)),
 	}
 
 	for _, xty := range xreg.Types {
@@ -162,6 +169,26 @@ func Parse(r io.Reader) (*Registry, error) {
 			feat.Commands[i] = cmd.Name
 		}
 		reg.Features = append(reg.Features, feat)
+	}
+
+	for _, xext := range xreg.Extensions {
+		support := strings.Split(xext.Supported, "|")
+		glSupported := false
+		for _, s := range support {
+			if s == "gl" {
+				glSupported = true
+				break
+			}
+		}
+		if !glSupported {
+			continue
+		}
+
+		ext := Extension{make([]string, len(xext.Commands))}
+		for i, cmd := range xext.Commands {
+			ext.Commands[i] = cmd.Name
+		}
+		reg.Extensions = append(reg.Extensions, ext)
 	}
 
 	return reg, nil
