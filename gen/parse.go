@@ -37,7 +37,7 @@ type xParam struct {
 }
 type xFeature struct {
 	API      string     `xml:"api,attr"`
-	Number   float32    `xml:"number,attr"`
+	Number   float64    `xml:"number,attr"`
 	Commands []xFeatCmd `xml:"require>command"`
 }
 type xFeatCmd struct {
@@ -162,7 +162,7 @@ func Parse(r io.Reader) (*Registry, error) {
 		}
 
 		feat := Feature{
-			int(xfeat.Number * 100),
+			int(xfeat.Number*100 + 0.5),
 			make([]string, len(xfeat.Commands)),
 		}
 		for i, cmd := range xfeat.Commands {

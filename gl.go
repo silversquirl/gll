@@ -28610,7 +28610,7 @@ func New200(getProcAddr func(name string) unsafe.Pointer) GL200 {
 	return gl
 }
 
-type GL209 interface {
+type GL210 interface {
 	Extensions
 	Accum(op uint32, value float32)
 	ActiveTexture(texture uint32)
@@ -29165,7 +29165,7 @@ type GL209 interface {
 	WindowPos3sv(v *int16)
 }
 
-func New209(getProcAddr func(name string) unsafe.Pointer) GL209 {
+func New210(getProcAddr func(name string) unsafe.Pointer) GL210 {
 	gl := &lib{
 		glAccum:                    getProcAddr("glAccum"),
 		glActiveTexture:            getProcAddr("glActiveTexture"),
@@ -38389,7 +38389,7 @@ func New410(getProcAddr func(name string) unsafe.Pointer) GL410 {
 	return gl
 }
 
-type GL419 interface {
+type GL420 interface {
 	Extensions
 	Accum(op uint32, value float32)
 	ActiveShaderProgram(pipeline uint32, program uint32)
@@ -39263,7 +39263,7 @@ type GL419 interface {
 	WindowPos3sv(v *int16)
 }
 
-func New419(getProcAddr func(name string) unsafe.Pointer) GL419 {
+func New420(getProcAddr func(name string) unsafe.Pointer) GL420 {
 	gl := &lib{
 		glAccum:                             getProcAddr("glAccum"),
 		glActiveShaderProgram:               getProcAddr("glActiveShaderProgram"),
