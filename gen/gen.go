@@ -183,11 +183,14 @@ func genVersion(buf *bytes.Buffer, cmdSigs map[string]string, v int, cmdMap map[
 		buf.WriteByte('\n')
 	}
 	fmt.Fprintf(buf, "}\nfunc New%d(getProcAddr func(name string) unsafe.Pointer) GL%[1]d {\n", v)
-	buf.WriteString("return &lib{\n")
+	buf.WriteString("gl := &lib{\n")
 	for _, cmd := range cmds {
 		fmt.Fprintf(buf, "%s: getProcAddr(%[1]q),\n", cmd)
 	}
-	buf.WriteString("}\n}\n")
+	buf.WriteString("}\n")
+	buf.WriteString("gl.initExtensions(getProcAddr)\n")
+	buf.WriteString("return gl\n")
+	buf.WriteString("}\n")
 }
 
 func genExtensions(buf *bytes.Buffer, cmdSigs map[string]string, reg *Registry) {
@@ -202,11 +205,19 @@ func genExtensions(buf *bytes.Buffer, cmdSigs map[string]string, reg *Registry) 
 			if _, ok := cmds[cmd]; ok {
 				continue
 			}
-			cmds[cmd] = struct{}{}
 			if sig, ok := cmdSigs[cmd]; ok {
+				cmds[cmd] = struct{}{}
 				buf.WriteString(strings.TrimPrefix(cmd, "gl"))
 				buf.WriteString(sig)
 				buf.WriteByte('\n')
+			}
+		}
+	}
+	buf.WriteString("}\nfunc (gl *lib) initExtensions(getProcAddr func(name string) unsafe.Pointer) {\n")
+	for _, ext := range reg.Extensions {
+		for _, cmd := range ext.Commands {
+			if _, ok := cmds[cmd]; ok {
+				fmt.Fprintf(buf, "gl.%s = getProcAddr(%[1]q)\n", cmd)
 			}
 		}
 	}
