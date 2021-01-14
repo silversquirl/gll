@@ -198,10 +198,6 @@ func genExtensions(buf *bytes.Buffer, cmdSigs map[string]string, reg *Registry) 
 	buf.WriteString("type Extensions interface {\n")
 	for _, ext := range reg.Extensions {
 		for _, cmd := range ext.Commands {
-			if strings.HasPrefix(cmd, "glDebugMessageCallback") { // TODO: support debug extensions
-				continue
-			}
-
 			if _, ok := cmds[cmd]; ok {
 				continue
 			}

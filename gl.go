@@ -48042,6 +48042,7 @@ type Extensions interface {
 	TbufferMask3DFX(mask uint32)
 	DebugMessageEnableAMD(category uint32, severity uint32, count int32, ids *uint32, enabled bool)
 	DebugMessageInsertAMD(category uint32, severity uint32, id uint32, length int32, buf *uint8)
+	DebugMessageCallbackAMD(callback func(source, type_, id, severity uint32, message string))
 	GetDebugMessageLogAMD(count uint32, bufSize int32, categories *uint32, severities *uint32, ids *uint32, lengths *int32, message *uint8) uint32
 	BlendFuncIndexedAMD(buf uint32, src uint32, dst uint32)
 	BlendFuncSeparateIndexedAMD(buf uint32, srcRGB uint32, dstRGB uint32, srcAlpha uint32, dstAlpha uint32)
@@ -48187,6 +48188,7 @@ type Extensions interface {
 	CopyImageSubData(srcName uint32, srcTarget uint32, srcLevel int32, srcX int32, srcY int32, srcZ int32, dstName uint32, dstTarget uint32, dstLevel int32, dstX int32, dstY int32, dstZ int32, srcWidth int32, srcHeight int32, srcDepth int32)
 	DebugMessageControlARB(source uint32, type_ uint32, severity uint32, count int32, ids *uint32, enabled bool)
 	DebugMessageInsertARB(source uint32, type_ uint32, id uint32, severity uint32, length int32, buf *uint8)
+	DebugMessageCallbackARB(callback func(source, type_, id, severity uint32, message string))
 	GetDebugMessageLogARB(count uint32, bufSize int32, sources *uint32, types *uint32, ids *uint32, severities *uint32, lengths *int32, messageLog *uint8) uint32
 	CreateTransformFeedbacks(n int32, ids *uint32)
 	TransformFeedbackBufferBase(xfb uint32, index uint32, buffer uint32)
@@ -49574,6 +49576,7 @@ type Extensions interface {
 	BlendBarrierKHR()
 	DebugMessageControl(source uint32, type_ uint32, severity uint32, count int32, ids *uint32, enabled bool)
 	DebugMessageInsert(source uint32, type_ uint32, id uint32, severity uint32, length int32, buf *uint8)
+	DebugMessageCallback(callback func(source, type_, id, severity uint32, message string))
 	GetDebugMessageLog(count uint32, bufSize int32, sources *uint32, types *uint32, ids *uint32, severities *uint32, lengths *int32, messageLog *uint8) uint32
 	PushDebugGroup(source uint32, id uint32, length int32, message *uint8)
 	PopDebugGroup()
@@ -49584,6 +49587,7 @@ type Extensions interface {
 	GetPointerv(pname uint32, params *unsafe.Pointer)
 	DebugMessageControlKHR(source uint32, type_ uint32, severity uint32, count int32, ids *uint32, enabled bool)
 	DebugMessageInsertKHR(source uint32, type_ uint32, id uint32, severity uint32, length int32, buf *uint8)
+	DebugMessageCallbackKHR(callback func(source, type_, id, severity uint32, message string))
 	GetDebugMessageLogKHR(count uint32, bufSize int32, sources *uint32, types *uint32, ids *uint32, severities *uint32, lengths *int32, messageLog *uint8) uint32
 	PushDebugGroupKHR(source uint32, id uint32, length int32, message *uint8)
 	PopDebugGroupKHR()
@@ -50400,6 +50404,7 @@ func (gl *lib) initExtensions(getProcAddr func(name string) unsafe.Pointer) {
 	gl.glTbufferMask3DFX = getProcAddr("glTbufferMask3DFX")
 	gl.glDebugMessageEnableAMD = getProcAddr("glDebugMessageEnableAMD")
 	gl.glDebugMessageInsertAMD = getProcAddr("glDebugMessageInsertAMD")
+	gl.glDebugMessageCallbackAMD = getProcAddr("glDebugMessageCallbackAMD")
 	gl.glGetDebugMessageLogAMD = getProcAddr("glGetDebugMessageLogAMD")
 	gl.glBlendFuncIndexedAMD = getProcAddr("glBlendFuncIndexedAMD")
 	gl.glBlendFuncSeparateIndexedAMD = getProcAddr("glBlendFuncSeparateIndexedAMD")
@@ -50545,6 +50550,7 @@ func (gl *lib) initExtensions(getProcAddr func(name string) unsafe.Pointer) {
 	gl.glCopyImageSubData = getProcAddr("glCopyImageSubData")
 	gl.glDebugMessageControlARB = getProcAddr("glDebugMessageControlARB")
 	gl.glDebugMessageInsertARB = getProcAddr("glDebugMessageInsertARB")
+	gl.glDebugMessageCallbackARB = getProcAddr("glDebugMessageCallbackARB")
 	gl.glGetDebugMessageLogARB = getProcAddr("glGetDebugMessageLogARB")
 	gl.glCreateTransformFeedbacks = getProcAddr("glCreateTransformFeedbacks")
 	gl.glTransformFeedbackBufferBase = getProcAddr("glTransformFeedbackBufferBase")
@@ -52036,6 +52042,7 @@ func (gl *lib) initExtensions(getProcAddr func(name string) unsafe.Pointer) {
 	gl.glBlendBarrierKHR = getProcAddr("glBlendBarrierKHR")
 	gl.glDebugMessageControl = getProcAddr("glDebugMessageControl")
 	gl.glDebugMessageInsert = getProcAddr("glDebugMessageInsert")
+	gl.glDebugMessageCallback = getProcAddr("glDebugMessageCallback")
 	gl.glGetDebugMessageLog = getProcAddr("glGetDebugMessageLog")
 	gl.glPushDebugGroup = getProcAddr("glPushDebugGroup")
 	gl.glPopDebugGroup = getProcAddr("glPopDebugGroup")
@@ -52046,6 +52053,7 @@ func (gl *lib) initExtensions(getProcAddr func(name string) unsafe.Pointer) {
 	gl.glGetPointerv = getProcAddr("glGetPointerv")
 	gl.glDebugMessageControlKHR = getProcAddr("glDebugMessageControlKHR")
 	gl.glDebugMessageInsertKHR = getProcAddr("glDebugMessageInsertKHR")
+	gl.glDebugMessageCallbackKHR = getProcAddr("glDebugMessageCallbackKHR")
 	gl.glGetDebugMessageLogKHR = getProcAddr("glGetDebugMessageLogKHR")
 	gl.glPushDebugGroupKHR = getProcAddr("glPushDebugGroupKHR")
 	gl.glPopDebugGroupKHR = getProcAddr("glPopDebugGroupKHR")

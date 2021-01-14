@@ -8,6 +8,7 @@ import "C"
 import (
 	"runtime"
 	"sync"
+	"unsafe"
 )
 
 type debugState struct {
@@ -16,6 +17,19 @@ type debugState struct {
 }
 
 func (gl *lib) DebugMessageCallback(callback func(source, type_, id, severity uint32, message string)) {
+	gl.callDebugMessageCallback(gl.glDebugMessageCallback, callback)
+}
+func (gl *lib) DebugMessageCallbackAMD(callback func(source, type_, id, severity uint32, message string)) {
+	gl.callDebugMessageCallback(gl.glDebugMessageCallbackAMD, callback)
+}
+func (gl *lib) DebugMessageCallbackARB(callback func(source, type_, id, severity uint32, message string)) {
+	gl.callDebugMessageCallback(gl.glDebugMessageCallbackARB, callback)
+}
+func (gl *lib) DebugMessageCallbackKHR(callback func(source, type_, id, severity uint32, message string)) {
+	gl.callDebugMessageCallback(gl.glDebugMessageCallbackKHR, callback)
+}
+
+func (gl *lib) callDebugMessageCallback(glDebugMessageCallback unsafe.Pointer, callback func(source, type_, id, severity uint32, message string)) {
 	if gl.debugProc == nil {
 		gl.debugIdx = debugAdd(gl)
 		runtime.SetFinalizer(gl, func(gl *lib) {
@@ -23,7 +37,7 @@ func (gl *lib) DebugMessageCallback(callback func(source, type_, id, severity ui
 		})
 	}
 	gl.debugProc = callback
-	C.gllCall_glDebugMessageCallback(gl.glDebugMessageCallback, C.uintptr_t(gl.debugIdx))
+	C.gllCall_glDebugMessageCallback(glDebugMessageCallback, C.uintptr_t(gl.debugIdx))
 }
 
 func debugGet(idx int) *lib {
