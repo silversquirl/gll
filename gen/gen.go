@@ -12,7 +12,9 @@ func Generate(reg *Registry) (src []byte, err error) {
 	buf := bytes.Buffer{}
 	buf.WriteString("package gll\n\n")
 
-	buf.WriteString("/*\n#cgo LDFLAGS: -lGL\n")
+	buf.WriteString("/*\n")
+	buf.WriteString("#cgo linux pkg-config: gl\n")
+	buf.WriteString("#cgo windows LDFLAGS: -lopengl32\n")
 	genC(&buf, reg)
 	buf.WriteString("*/\n")
 

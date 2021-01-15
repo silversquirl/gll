@@ -2,7 +2,8 @@
 package gll
 
 /*
-#cgo LDFLAGS: -lGL
+#cgo linux pkg-config: gl
+#cgo windows LDFLAGS: -lopengl32
 #include <stdint.h>
 #include <sys/types.h>
 
